@@ -9,6 +9,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        unityVersion:
+          - 2020.3.26f1
+
         targetPlatform:
           - StandaloneWindows64
           - StandaloneOSX
@@ -21,7 +24,8 @@ jobs:
         with:
           lfs: true
 
-      - uses: actions/cache@v2
+      - name: Cache
+        uses: actions/cache@v2
         with:
           path: Library
           key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
@@ -36,7 +40,8 @@ jobs:
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
           targetPlatform: ${{ matrix.targetPlatform }}
-          
+          unityVersion: ${{ matrix.unityVersion }}
+
       - uses: actions/upload-artifact@v2
         with:
           name: Build
