@@ -37,6 +37,14 @@ public abstract class NetworkSingleton<T> : NetworkBehaviour where T : NetworkBe
         }
     }
 
+    public static bool Exists
+    {
+        get
+        {
+            return instance != null;
+        }
+    }
+
     #endregion
 
     #region Methods

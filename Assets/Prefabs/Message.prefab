@@ -185,6 +185,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   messsageText: {fileID: 7482681985414753672}
+  usernameText: {fileID: 7482681983732309614}
 --- !u!1 &7482681985384538396
 GameObject:
   m_ObjectHideFlags: 0

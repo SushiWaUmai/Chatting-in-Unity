@@ -1,9 +1,20 @@
 using Unity.Netcode;
+using UnityEngine;
+
+public struct PlayerData
+{
+    public string username;
+
+    public PlayerData(string username)
+    {
+        this.username = username;
+    }
+}
 
 public class Player : NetworkBehaviour
 {
     public static Player LocalPlayer;
-    
+
     private void Start()
     {
         if (IsLocalPlayer)
@@ -11,14 +22,17 @@ public class Player : NetworkBehaviour
     }
 
     [ServerRpc]
-    public void SendMessageServerRpc(string message)
+    public void SendMessageServerRpc(string message, ServerRpcParams rpcParams = default)
     {
-        ReceiveMessageClientRpc(message);
+        ulong playerID = rpcParams.Receive.SenderClientId;
+        Debug.Log(playerID);
+        PlayerData data = ServerGameNetPortal.Instance.GetPlayerData(playerID);
+        ReceiveMessageClientRpc(message, data.username);
     }
 
     [ClientRpc]
-    public void ReceiveMessageClientRpc(string message)
+    public void ReceiveMessageClientRpc(string message, string username)
     {
-        MessageDisplay.Instance.DisplayMessage(message);
+        MessageDisplay.Instance.DisplayMessage(message, username);
     }
 }

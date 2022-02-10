@@ -4,6 +4,7 @@ using TMPro;
 public class UIManager : MonoBehaviour
 {
     [SerializeField] private TMP_InputField connectionInputField;
+    [SerializeField] private TMP_InputField usernameInputField;
     [SerializeField] private GameObject[] uiMenu;
 
     private enum MenuState
@@ -20,7 +21,7 @@ public class UIManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        if(ClientGameNetPortal.Instance)
+        if(ClientGameNetPortal.Exists)
             ClientGameNetPortal.Instance.OnConnectGame -= OnJoinLobby;
     }
 
@@ -28,15 +29,17 @@ public class UIManager : MonoBehaviour
     public void HostGame()
     {
         (string ip, int port) = GetIPAndPort(connectionInputField.text);
+        PlayerData playerData = new PlayerData(usernameInputField.text);
 
-        GameNetPortal.Instance.StartHost(ip, port);
+        GameNetPortal.Instance.StartHost(ip, port, playerData);
     }
 
     public void JoinGame()
     {
         (string ip, int port) = GetIPAndPort(connectionInputField.text);
+        PlayerData playerData = new PlayerData(usernameInputField.text);
 
-        GameNetPortal.Instance.StartClient(ip, port);
+        GameNetPortal.Instance.StartClient(ip, port, playerData);
     }
 
     private void OnJoinLobby()

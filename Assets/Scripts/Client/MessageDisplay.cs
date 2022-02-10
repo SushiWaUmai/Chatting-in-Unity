@@ -12,14 +12,14 @@ public class MessageDisplay : Singleton<MessageDisplay>
 
     private Queue<MessageObject> messageQueue = new Queue<MessageObject>();
 
-    public void DisplayMessage(string text)
+    public void DisplayMessage(string text, string user)
     {
         if (messageQueue.Count < maxMessages)
         {
             GameObject go = Instantiate(messagePrefab, messageContainer);
             MessageObject mo = go.GetComponent<MessageObject>();
             messageQueue.Enqueue(mo);
-            mo.Init(text);
+            mo.Init(text, user);
 
             // increase the size of the container by 115
             messageContainer.sizeDelta = new Vector2(messageContainer.sizeDelta.x, messageContainer.sizeDelta.y + 115);
@@ -30,7 +30,7 @@ public class MessageDisplay : Singleton<MessageDisplay>
         else
         {
             MessageObject mo = messageQueue.Dequeue();
-            mo.Init(text);
+            mo.Init(text, user);
 
             // set sibling index to the last child
             mo.transform.SetSiblingIndex(messageContainer.childCount - 1);

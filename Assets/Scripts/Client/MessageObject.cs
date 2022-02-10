@@ -4,8 +4,10 @@ using TMPro;
 public class MessageObject : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI messsageText;
-    public void Init(string text)
+    [SerializeField] private TextMeshProUGUI usernameText;
+    public void Init(string text, string user)
     {
         messsageText.text = text;
+        usernameText.text = user;
     }
 }

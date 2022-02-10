@@ -12,6 +12,7 @@ public class ClientGameNetPortal : Singleton<ClientGameNetPortal>
         networkManager = NetworkManager.Singleton;
         networkManager.OnClientConnectedCallback += OnClientConnectedCallback;
         networkManager.OnClientDisconnectCallback += OnClientDisconnectCallback;
+        networkManager.OnServerStarted += OnNetworkReady;
     }
 
     private void OnDestroy()
@@ -20,6 +21,15 @@ public class ClientGameNetPortal : Singleton<ClientGameNetPortal>
         {
             networkManager.OnClientConnectedCallback -= OnClientConnectedCallback;
             networkManager.OnClientDisconnectCallback -= OnClientDisconnectCallback;
+            networkManager.OnServerStarted -= OnNetworkReady;
+        }
+    }
+
+    private void OnNetworkReady()
+    {
+        if (!networkManager.IsClient)
+        {
+            enabled = false;
         }
     }
 
