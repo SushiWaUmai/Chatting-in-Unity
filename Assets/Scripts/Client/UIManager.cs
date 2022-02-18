@@ -3,9 +3,11 @@ using TMPro;
 
 public class UIManager : MonoBehaviour
 {
-    [SerializeField] private TMP_InputField connectionInputField;
+    [SerializeField] private TMP_InputField joinCodeInputField;
     [SerializeField] private TMP_InputField usernameInputField;
+
     [SerializeField] private GameObject[] uiMenu;
+    [SerializeField] private TextMeshProUGUI joinCodeDisplay;
 
     private enum MenuState
     {
@@ -17,29 +19,35 @@ public class UIManager : MonoBehaviour
     {
         SwitchMenu(MenuState.MainMenu);
         ClientGameNetPortal.Instance.OnConnectGame += OnJoinLobby;
+        ServerGameNetPortal.Instance.OnHostGame += OnHostGame;
     }
 
     private void OnDestroy()
     {
-        if(ClientGameNetPortal.Exists)
+        if (ClientGameNetPortal.Exists)
             ClientGameNetPortal.Instance.OnConnectGame -= OnJoinLobby;
+        if (ServerGameNetPortal.Exists)
+            ServerGameNetPortal.Instance.OnHostGame -= OnHostGame;
     }
 
 
     public void HostGame()
     {
-        (string ip, int port) = GetIPAndPort(connectionInputField.text);
         PlayerData playerData = new PlayerData(usernameInputField.text);
+        GameNetPortal.Instance.StartHost(playerData);
+    }
 
-        GameNetPortal.Instance.StartHost(ip, port, playerData);
+    public void OnHostGame(RelayHostData data)
+    {
+        joinCodeDisplay.text = data.JoinCode;
     }
 
     public void JoinGame()
     {
-        (string ip, int port) = GetIPAndPort(connectionInputField.text);
+        string joincode = joinCodeInputField.text;
         PlayerData playerData = new PlayerData(usernameInputField.text);
 
-        GameNetPortal.Instance.StartClient(ip, port, playerData);
+        GameNetPortal.Instance.StartClient(playerData, joincode);
     }
 
     private void OnJoinLobby()
@@ -67,20 +75,5 @@ public class UIManager : MonoBehaviour
     public void QuitGame()
     {
         Application.Quit();
-    }
-
-    private (string, int) GetIPAndPort(string input)
-    {
-        string[] ipPort = connectionInputField.text.Split(':');
-        string ip = ipPort[0];
-
-        int port;
-        if (ipPort.Length > 1 && int.TryParse(ipPort[1], out port))
-        {
-            return (ip, port);
-        }
-
-        Debug.LogError("Invalid IP or port");
-        return ("", 0);
     }
 }

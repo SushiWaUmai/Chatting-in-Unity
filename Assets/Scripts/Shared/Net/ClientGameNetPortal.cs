@@ -48,4 +48,12 @@ public class ClientGameNetPortal : Singleton<ClientGameNetPortal>
         if (networkManager.LocalClientId == connectionID)
             OnDisconnectGame?.Invoke();
     }
+
+    public async void StartClient(PlayerData data, string joincode)
+    {
+        networkManager.NetworkConfig.ConnectionData = System.Text.Encoding.ASCII.GetBytes(JsonUtility.ToJson(data));
+        await RelayUtil.Instance.JoinGame(joincode);
+        networkManager.StartClient();
+    }
 }
+

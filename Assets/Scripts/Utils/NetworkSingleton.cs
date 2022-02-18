@@ -3,7 +3,6 @@ using Unity.Netcode;
 
 public abstract class NetworkSingleton<T> : NetworkBehaviour where T : NetworkBehaviour
 {
-
     #region Fields
 
     /// <summary>

@@ -1,39 +1,26 @@
 using UnityEngine;
 using Unity.Netcode;
-using Unity.Netcode.Transports.UNET;
 
 public class GameNetPortal : Singleton<GameNetPortal>
 {
     private NetworkManager networkManager;
-    private UNetTransport transport;
+    private UnityTransport transport;
 
     private void Start()
     {
         networkManager = NetworkManager.Singleton;
-        transport = networkManager.GetComponent<UNetTransport>();
+        transport = networkManager.GetComponent<UnityTransport>();
     }
 
-    public void StartHost(string ip, int port, PlayerData data)
+    public void StartHost(PlayerData data)
     {
-        transport.ConnectAddress = ip;
-        transport.ConnectPort = port;
-        transport.ServerListenPort = port;
-
-        networkManager.NetworkConfig.ConnectionData = System.Text.Encoding.ASCII.GetBytes(JsonUtility.ToJson(data));
-
-        networkManager.StartHost();
         Debug.Log("Started host");
+        ServerGameNetPortal.Instance.StartHost(data);
     }
 
-    public void StartClient(string ip, int port, PlayerData data)
+    public void StartClient(PlayerData data, string joincode)
     {
-        transport.ConnectAddress = ip;
-        transport.ConnectPort = port;
-        transport.ServerListenPort = port;
-
-        networkManager.NetworkConfig.ConnectionData = System.Text.Encoding.ASCII.GetBytes(JsonUtility.ToJson(data));
-
-        networkManager.StartClient();
         Debug.Log("Started client");
+        ClientGameNetPortal.Instance.StartClient(data, joincode);
     }
 }

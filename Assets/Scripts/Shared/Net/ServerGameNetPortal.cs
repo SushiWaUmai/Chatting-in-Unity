@@ -4,9 +4,10 @@ using Unity.Netcode;
 
 public class ServerGameNetPortal : Singleton<ServerGameNetPortal>
 {
+    private RelayHostData data;
     private Dictionary<ulong, PlayerData> playerData = new Dictionary<ulong, PlayerData>();
-
     private NetworkManager networkManager;
+    public event System.Action<RelayHostData> OnHostGame;
 
     private void Start()
     {
@@ -23,6 +24,16 @@ public class ServerGameNetPortal : Singleton<ServerGameNetPortal>
             networkManager.OnServerStarted -= OnNetworkReady;
         }
     }
+
+    public async void StartHost(PlayerData playerData)
+    {
+        networkManager.NetworkConfig.ConnectionData = System.Text.Encoding.ASCII.GetBytes(JsonUtility.ToJson(playerData));
+
+        data = await RelayUtil.Instance.HostGame(10);
+        OnHostGame?.Invoke(data);
+        networkManager.StartHost();
+    }
+
 
     private void OnNetworkReady()
     {
@@ -56,3 +67,4 @@ public class ServerGameNetPortal : Singleton<ServerGameNetPortal>
         return playerData[clientId];
     }
 }
+

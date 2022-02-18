@@ -34,7 +34,7 @@ public class MessageDisplay : Singleton<MessageDisplay>
 
             // set sibling index to the last child
             mo.transform.SetSiblingIndex(messageContainer.childCount - 1);
-            
+
             messageQueue.Enqueue(mo);
         }
     }
