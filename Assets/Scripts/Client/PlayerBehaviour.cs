@@ -11,9 +11,9 @@ public struct PlayerData
     }
 }
 
-public class Player : NetworkBehaviour
+public class PlayerBehaviour : NetworkBehaviour
 {
-    public static Player LocalPlayer;
+    public static PlayerBehaviour LocalPlayer;
 
     private void Start()
     {

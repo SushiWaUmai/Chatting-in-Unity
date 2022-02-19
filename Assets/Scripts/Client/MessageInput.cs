@@ -18,6 +18,6 @@ public class MessageInput : MonoBehaviour
         // focus on input field
         messageInputField.ActivateInputField();
 
-        Player.LocalPlayer.SendMessageServerRpc(message);
+        PlayerBehaviour.LocalPlayer.SendMessageServerRpc(message);
     }
 }
