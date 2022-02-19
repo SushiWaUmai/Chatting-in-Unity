@@ -1,9 +1,12 @@
+using System.Collections.Generic;
 using System;
 using System.Threading.Tasks;
 using Unity.Netcode;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
 using Unity.Services.Relay.Models;
+using Unity.Services.Lobbies;
+using Unity.Services.Lobbies.Models;
 
 public class RelayUtil : Singleton<RelayUtil>
 {
@@ -49,6 +52,24 @@ public class RelayUtil : Singleton<RelayUtil>
 
         Transport.SetRelayServerData(data.IPv4Address, data.Port, data.AllocationIDBytes,
                 data.Key, data.ConnectionData);
+
+        Dictionary<string, DataObject> lobbyData = new Dictionary<string, DataObject>() {
+            { "TestData", new DataObject(DataObject.VisibilityOptions.Public, "YEs") }
+        };
+
+        Dictionary<string, PlayerDataObject> playerData = new Dictionary<string, PlayerDataObject>() {
+            
+        };
+
+        // Create lobby
+        CreateLobbyOptions options = new CreateLobbyOptions()
+        {
+            Data = lobbyData,
+            IsPrivate = false,
+            Player = new Unity.Services.Lobbies.Models.Player(AuthenticationService.Instance.PlayerId, data.JoinCode, null, allocation.AllocationId.ToString())
+        };
+
+        Lobby lobby = await Lobbies.Instance.CreateLobbyAsync("LobbyName", 10, options);
 
         return data;
     }
