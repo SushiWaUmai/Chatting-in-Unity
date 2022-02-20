@@ -27,9 +27,9 @@ public class ServerGameNetPortal : Singleton<ServerGameNetPortal>
 
     public async void StartHost(PlayerData playerData)
     {
-        networkManager.NetworkConfig.ConnectionData = System.Text.Encoding.ASCII.GetBytes(JsonUtility.ToJson(playerData));
+        // networkManager.NetworkConfig.ConnectionData = System.Text.Encoding.ASCII.GetBytes(JsonUtility.ToJson(playerData));
 
-        data = await RelayUtil.Instance.HostGame(10);
+        data = await RelayLobbyManager.Instance.HostGame(10, playerData);
         OnHostGame?.Invoke(data);
         networkManager.StartHost();
     }

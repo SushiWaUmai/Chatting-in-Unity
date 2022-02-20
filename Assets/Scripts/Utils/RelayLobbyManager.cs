@@ -1,14 +1,15 @@
-using System.Collections.Generic;
 using System;
 using System.Threading.Tasks;
 using Unity.Netcode;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
 using Unity.Services.Relay.Models;
-using Unity.Services.Lobbies;
 using Unity.Services.Lobbies.Models;
+using System.Collections;
+using UnityEngine;
+using Unity.Services.Lobbies;
 
-public class RelayUtil : Singleton<RelayUtil>
+public class RelayLobbyManager : Singleton<RelayLobbyManager>
 {
     public UnityTransport Transport { get; private set; }
 
@@ -22,7 +23,7 @@ public class RelayUtil : Singleton<RelayUtil>
     /// </summary>
     /// <param name="maxConn">The maximum number the Relay can have</param>
     /// <returns>A Task returning the needed hosting data</returns>
-    public async Task<RelayHostData> HostGame(int maxConn)
+    public async Task<RelayHostData> HostGame(int maxConn, PlayerData playerData)
     {
         //Initialize the Unity Services engine
         await UnityServices.InitializeAsync();
@@ -53,23 +54,11 @@ public class RelayUtil : Singleton<RelayUtil>
         Transport.SetRelayServerData(data.IPv4Address, data.Port, data.AllocationIDBytes,
                 data.Key, data.ConnectionData);
 
-        Dictionary<string, DataObject> lobbyData = new Dictionary<string, DataObject>() {
-            { "TestData", new DataObject(DataObject.VisibilityOptions.Public, "YEs") }
-        };
+        // create lobby
+        Lobby lobby = await LobbyAPIInterface.CreateLobbyAsync("test", maxConn, true, data.JoinCode, allocation.AllocationId.ToString(), null);
 
-        Dictionary<string, PlayerDataObject> playerData = new Dictionary<string, PlayerDataObject>() {
-            
-        };
-
-        // Create lobby
-        CreateLobbyOptions options = new CreateLobbyOptions()
-        {
-            Data = lobbyData,
-            IsPrivate = false,
-            Player = new Unity.Services.Lobbies.Models.Player(AuthenticationService.Instance.PlayerId, data.JoinCode, null, allocation.AllocationId.ToString())
-        };
-
-        Lobby lobby = await Lobbies.Instance.CreateLobbyAsync("LobbyName", 10, options);
+        // Heartbeat the lobby every 15 seconds.
+        StartCoroutine(HeartbeatLobbyCoroutine(lobby.Id, 15));
 
         return data;
     }
@@ -79,7 +68,7 @@ public class RelayUtil : Singleton<RelayUtil>
     /// </summary>
     /// <param name="joinCode">The join code generated on the host or server</param>
     /// <returns>All the necessary data to connect</returns>
-    public async Task<RelayJoinData> JoinGame(string joinCode)
+    public async Task<RelayJoinData> JoinGame(string joinCode, PlayerData playerData)
     {
         //Initialize the Unity Services engine
         await UnityServices.InitializeAsync();
@@ -108,9 +97,22 @@ public class RelayUtil : Singleton<RelayUtil>
         Transport.SetRelayServerData(data.IPv4Address, data.Port, data.AllocationIDBytes,
             data.Key, data.ConnectionData, data.HostConnectionData);
 
+        LobbyAPIInterface.JoinLobbyAsyncByCode(joinCode, null, null);
+
         return data;
     }
+
+    private IEnumerator HeartbeatLobbyCoroutine(string lobbyId, float waitTimeSeconds)
+    {
+        var delay = new WaitForSecondsRealtime(waitTimeSeconds);
+        while (true)
+        {
+            Lobbies.Instance.SendHeartbeatPingAsync(lobbyId);
+            yield return delay;
+        }
+    }
 }
+
 
 public struct RelayHostData
 {

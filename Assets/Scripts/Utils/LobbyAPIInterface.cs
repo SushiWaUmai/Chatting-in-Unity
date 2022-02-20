@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
 using Unity.Services.Lobbies;
@@ -23,17 +24,17 @@ public static class LobbyAPIInterface
 
     private const int k_maxLobbiesToShow = 16; // If more are necessary, consider retrieving paginated results or using filters.
 
-    public static async void CreateLobbyAsync(string lobbyName, int maxPlayers, bool isPrivate, Dictionary<string, PlayerDataObject> localUserData, Action<Lobby> onComplete)
+    public static async Task<Lobby> CreateLobbyAsync(string lobbyName, int maxPlayers, bool isPrivate, string joinCode, string allocationID, Dictionary<string, PlayerDataObject> localUserData)
     {
         Authenticate();
 
         CreateLobbyOptions createOptions = new CreateLobbyOptions
         {
             IsPrivate = isPrivate,
-            Player = new Player(AuthenticationService.Instance.PlayerId, data: localUserData)
+            Player = new Player(AuthenticationService.Instance.PlayerId, joinCode, localUserData, allocationID)
         };
         Lobby lobby = await Lobbies.Instance.CreateLobbyAsync(lobbyName, maxPlayers, createOptions);
-        onComplete?.Invoke(lobby);
+        return lobby;
     }
 
     public static async void DeleteLobbyAsync(string lobbyId, Action onComplete)
@@ -42,7 +43,7 @@ public static class LobbyAPIInterface
         onComplete?.Invoke();
     }
 
-    public static async void JoinLobbyAsync_ByCode(string lobbyCode, Dictionary<string, PlayerDataObject> localUserData, Action<Lobby> onComplete)
+    public static async void JoinLobbyAsyncByCode(string lobbyCode, Dictionary<string, PlayerDataObject> localUserData, Action<Lobby> onComplete)
     {
         Authenticate();
         JoinLobbyByCodeOptions joinOptions = new JoinLobbyByCodeOptions { Player = new Player(id: AuthenticationService.Instance.PlayerId, data: localUserData) };
@@ -50,7 +51,7 @@ public static class LobbyAPIInterface
         onComplete?.Invoke(lobby);
     }
 
-    public static async void JoinLobbyAsync_ById(string requesterUASId, string lobbyId, Dictionary<string, PlayerDataObject> localUserData, Action<Lobby> onComplete)
+    public static async void JoinLobbyAsyncById(string requesterUASId, string lobbyId, Dictionary<string, PlayerDataObject> localUserData, Action<Lobby> onComplete)
     {
         Authenticate();
         JoinLobbyByIdOptions joinOptions = new JoinLobbyByIdOptions { Player = new Player(id: AuthenticationService.Instance.PlayerId, data: localUserData) };
